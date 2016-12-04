@@ -1,6 +1,9 @@
 clear; clc; close all;
 
 % read in dataset
+% Mac Path
+% croppedB01_set = imageSet('images/CroppedYale/yaleB01/');
+% Windows Path
 croppedB01_set = imageSet('images\CroppedYale\yaleB01\');
 for i = 1:croppedB01_set.Count
     croppedB01{i} = read(croppedB01_set,i);
