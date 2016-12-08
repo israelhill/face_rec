@@ -52,6 +52,25 @@ imagesc(avg_cropped_vector); colormap gray;
 A = double(cropped_vector)-avg_cropped_vector;
 
 %% reshape back to faces?
-for i = 1:length(cropped_set)
-    eigen(:,:,i) = reshape(A(:,i),[192 168]);
+% for i = 1:length(cropped_set)
+%     eigen(:,:,i) = reshape(A(:,i),[192 168]);
+% end
+
+%% covariance
+A = single(A);
+% C = cov(A');
+% 
+% %% eigen
+% [V,D] = eig(C);
+% eigval = diag(D);
+% eigvalsorted = eigval(end:-1:1);
+% V = fliplr(V);
+
+%% SVD
+[U,S,V] = svd(A,'econ');
+
+%% showing eigenfaces?
+for i = 0:15
+    subplot(4,4,i+1)
+    imagesc(reshape(U(:,i+1),192,168)); colormap gray
 end
