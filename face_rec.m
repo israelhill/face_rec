@@ -110,18 +110,15 @@ end
 hold off
 
 %% compute Euclidian difference, make prediction
-test_img = omega_testing(:,2);
-imagesc(testing_set(:,:,2)); colormap gray;
-title('Face to recognize');
-for j = 1: length(omega_training)
-    current_training_img = omega_training(:,j);
-    euclidian_dist = norm(test_img - current_training_img);
-    euclidian_arr(j) = euclidian_dist;
+for j = 1:length(omega_training)
+    euclidian_arr(j) = norm(omega_training(:,2)-omega_testing(:,j));
 end
-[prediction, index] = min(euclidian_arr)
-figure;
-imagesc(testing_set(:, :, index)); colormap gray;
-title('Prediction');
+[prediction, p_index] = min(euclidian_arr)
+
+figure
+imagesc(training_set(:,:,2)); colormap gray; title('Face to recognize');
+figure
+imagesc(testing_set(:,:,p_index)); colormap gray; title('Prediction');
     
     
 
