@@ -41,6 +41,11 @@ for j = 1:length(cropped)
     cropped_set(:,:,j) = cropped{j};
 end
 
+%% split into testing and training sets
+[testing_set,testing_idx] = datasample(cropped_set,size(cropped_set,3)/2,3,'Replace',false);
+training_set = cropped_set;
+training_set(:,:,testing_idx) = [];
+
 %% averaging
 avg_cropped = mean(cropped_set,3);
 figure
@@ -51,7 +56,7 @@ for j = 1:length(cropped_set)
     cropped_vector(:,j) = reshape(cropped_set(:,:,j),[1 192*168]);
 end
 avg_cropped_vector = reshape(avg_cropped,[192*168 1]);
-avg_cropped_vector = repmat(avg_cropped_vector,1,2414);
+avg_cropped_vector = repmat(avg_cropped_vector,1,size(cropped_set,3));
 figure
 imagesc(cropped_vector); colormap gray;
 figure
@@ -59,8 +64,6 @@ imagesc(avg_cropped_vector); colormap gray;
 
 %% subtract the mean
 A = double(cropped_vector)-avg_cropped_vector;
-
-%% covariance
 A = single(A);
 
 %% SVD
