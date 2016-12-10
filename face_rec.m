@@ -109,6 +109,22 @@ for i = 1:size(testing_set,3)
 end
 hold off
 
+%% compute Euclidian difference, make prediction
+test_img = omega_testing(:,2);
+imagesc(testing_set(:,:,2)); colormap gray;
+title('Face to recognize');
+for j = 1: length(omega_training)
+    current_training_img = omega_training(:,j);
+    euclidian_dist = norm(test_img - current_training_img);
+    euclidian_arr(j) = euclidian_dist;
+end
+[prediction, index] = min(euclidian_arr)
+figure;
+imagesc(testing_set(:, :, index)); colormap gray;
+title('Prediction');
+    
+    
+
  
 % % display original face
 % figure
