@@ -47,16 +47,16 @@ training_set = cropped_set;
 training_set(:,:,testing_idx) = [];
 
 %% averaging
-avg_cropped = mean(cropped_set,3);
+avg_cropped = mean(training_set,3);
 figure
 imagesc(avg_cropped); colormap gray;
 
 %% reshape
-for j = 1:length(cropped_set)
-    cropped_vector(:,j) = reshape(cropped_set(:,:,j),[1 192*168]);
+for j = 1:length(training_set)
+    cropped_vector(:,j) = reshape(training_set(:,:,j),[1 192*168]);
 end
 avg_cropped_vector = reshape(avg_cropped,[192*168 1]);
-avg_cropped_vector = repmat(avg_cropped_vector,1,size(cropped_set,3));
+avg_cropped_vector = repmat(avg_cropped_vector,1,size(training_set,3));
 figure
 imagesc(cropped_vector); colormap gray;
 figure
@@ -80,7 +80,7 @@ close all
 % finds weights
 figure
 hold on
-for i = 1:size(cropped_set,3)   
+for i = 1:size(training_set,3)   
     for j = 1:13
         w(j) = U(:,j)'*A(:,i);
     end
@@ -91,9 +91,9 @@ hold off
 
 % display original face
 figure
-imagesc(cropped_set(:,:,5)); colormap gray;
+imagesc(training_set(:,:,5)); colormap gray;
 figure
-imagesc(cropped_set(:,:,50)); colormap gray;
+imagesc(training_set(:,:,50)); colormap gray;
 
 % reconstructs face based off weight
 recon5 = zeros(32256,1);
