@@ -77,34 +77,55 @@ end
 
 %% weights
 close all
-% finds weights
+% find weights of training set
 figure
 hold on
 for i = 1:size(training_set,3)   
     for j = 1:13
-        w(j) = U(:,j)'*A(:,i);
+        w_training(j) = U(:,j)'*A(:,i);
     end
-    omega(:,i) = w;
-    plot(w)
+    omega_training(:,i) = w_training;
+    plot(w_training)
 end
 hold off
 
-% display original face
-figure
-imagesc(training_set(:,:,5)); colormap gray;
-figure
-imagesc(training_set(:,:,50)); colormap gray;
 
-% reconstructs face based off weight
-recon5 = zeros(32256,1);
-recon50 = zeros(32256,1);
-for j = 1:13
-    recon5 = recon5+omega(j,5)*U(:,j);
-    recon50 = recon50+omega(j,50)*U(:,j);
+%% face recognition
+% find weight of testing set
+for j = 1:length(testing_set)
+    cropped_vector_testing(:,j) = reshape(testing_set(:,:,j),[1 192*168]);
 end
-recon5 = reshape(recon5,192,168);
-recon50 = reshape(recon50,192,168);
+A_training = double(cropped_vector_testing)-avg_cropped_vector;
+A_training = single(A_training);
+
 figure
-imagesc(recon5); colormap gray;
-figure
-imagesc(recon50); colormap gray;
+hold on
+for i = 1:size(testing_set,3)   
+    for j = 1:13
+        w_testing(j) = U(:,j)'*A_training(:,i);
+    end
+    omega_testing(:,i) = w_testing;
+    plot(w_testing)
+end
+hold off
+
+ 
+% % display original face
+% figure
+% imagesc(training_set(:,:,5)); colormap gray;
+% figure
+% imagesc(training_set(:,:,50)); colormap gray;
+% 
+% % reconstructs face based off weight
+% recon5 = zeros(32256,1);
+% recon50 = zeros(32256,1);
+% for j = 1:13
+%     recon5 = recon5+omega(j,5)*U(:,j);
+%     recon50 = recon50+omega(j,50)*U(:,j);
+% end
+% recon5 = reshape(recon5,192,168);
+% recon50 = reshape(recon50,192,168);
+% figure
+% imagesc(recon5); colormap gray;
+% figure
+% imagesc(recon50); colormap gray;
