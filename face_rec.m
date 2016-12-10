@@ -75,14 +75,15 @@ end
 %% weights
 close all
 % finds weights
-for j = 1:13
-    w5(:,j) = U(:,j)'*A(:,5);
-    w50(:,j) = U(:,j)'*A(:,50);
-end
 figure
 hold on
-plot(w5)
-plot(w50)
+for i = 1:size(cropped_set,3)   
+    for j = 1:13
+        w(j) = U(:,j)'*A(:,i);
+    end
+    omega(:,i) = w;
+    plot(w)
+end
 hold off
 
 % display original face
@@ -95,8 +96,8 @@ imagesc(cropped_set(:,:,50)); colormap gray;
 recon5 = zeros(32256,1);
 recon50 = zeros(32256,1);
 for j = 1:13
-    recon5 = recon5+w5(j)*U(:,j);
-    recon50 = recon50+w50(j)*U(:,j);
+    recon5 = recon5+omega(j,5)*U(:,j);
+    recon50 = recon50+omega(j,50)*U(:,j);
 end
 recon5 = reshape(recon5,192,168);
 recon50 = reshape(recon50,192,168);
