@@ -111,12 +111,12 @@ hold off
 
 %% compute Euclidian difference, make prediction
 for j = 1:length(omega_training)
-    euclidian_arr(j) = norm(omega_training(:,2)-omega_testing(:,j));
+    euclidian_arr(j) = norm(omega_training(:,6)-omega_testing(:,j));
 end
 [prediction, p_index] = min(euclidian_arr)
 
 figure
-imagesc(training_set(:,:,2)); colormap gray; title('Face to recognize');
+imagesc(training_set(:,:,6)); colormap gray; title('Face to recognize');
 figure
 imagesc(testing_set(:,:,p_index)); colormap gray; title('Prediction');
     
