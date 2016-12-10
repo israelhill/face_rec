@@ -110,18 +110,21 @@ end
 hold off
 
 %% compute Euclidian difference, make prediction
-for j = 1:length(omega_training)
-    euclidian_arr(j) = norm(omega_training(:,2)-omega_testing(:,j));
+figure
+count = 1;
+for k = 1:5
+    k = k + 5;
+    for j = 1:length(omega_training)
+        euclidian_arr(j) = norm(omega_training(:,k)-omega_testing(:,j));
+    end
+    [prediction, p_index] = min(euclidian_arr)
+
+    subplot(5,2,count);
+    imagesc(training_set(:,:,k)); colormap gray; title('Face to recognize');
+    subplot(5,2,count + 1);
+    imagesc(testing_set(:,:,p_index)); colormap gray; title('Prediction');
+    count = count + 2;
 end
-[prediction, p_index] = min(euclidian_arr)
-
-figure
-imagesc(training_set(:,:,2)); colormap gray; title('Face to recognize');
-figure
-imagesc(testing_set(:,:,p_index)); colormap gray; title('Prediction');
-    
-    
-
  
 % % display original face
 % figure
