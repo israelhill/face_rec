@@ -54,20 +54,8 @@ imagesc(avg_cropped_vector); colormap gray;
 %% subtract the mean
 A = double(cropped_vector)-avg_cropped_vector;
 
-%% reshape back to faces?
-% for i = 1:length(cropped_set)
-%     eigen(:,:,i) = reshape(A(:,i),[192 168]);
-% end
-
 %% covariance
 A = single(A);
-% C = cov(A');
-% 
-% %% eigen
-% [V,D] = eig(C);
-% eigval = diag(D);
-% eigvalsorted = eigval(end:-1:1);
-% V = fliplr(V);
 
 %% SVD
 [U,S,V] = svd(A,'econ');
@@ -75,22 +63,15 @@ A = single(A);
 %% showing eigenfaces
 for j = 0:27
     subplot(4,7,j+1)
-    %reshaped_eig_faces(:,:,i+1) = reshape(U(:,i+1),192,168);
     imagesc(reshape(U(:,j+1),192,168)); colormap gray
 end
 
-%% Eigenspace
-%for i = 1:size(cropped_set,3)
-%    eig_space(:,:,i) = double(cropped_set(:,:,i))-avg_cropped;
-%end
-
 %% weights
 close all
+% finds weights
 for j = 1:13
-    %j
-    %avg_cropped_vector(:,j)'*U(:,2)
-    w5(:,j) = U(:,j)'*avg_cropped_vector(:,50);
-    w50(:,j) = U(:,j)'*avg_cropped_vector(:,50);
+    w5(:,j) = U(:,j)'*A(:,5);
+    w50(:,j) = U(:,j)'*A(:,50);
 end
 figure
 hold on
@@ -98,8 +79,13 @@ plot(w5)
 plot(w50)
 hold off
 
+% display original face
+figure
+imagesc(cropped_set(:,:,5)); colormap gray;
 figure
 imagesc(cropped_set(:,:,50)); colormap gray;
+
+% reconstructs face based off weight
 recon5 = zeros(32256,1);
 recon50 = zeros(32256,1);
 for j = 1:13
@@ -109,4 +95,6 @@ end
 recon5 = reshape(recon5,192,168);
 recon50 = reshape(recon50,192,168);
 figure
-imagesc(recon5-recon50); colormap gray;
+imagesc(recon5); colormap gray;
+figure
+imagesc(recon50); colormap gray;
