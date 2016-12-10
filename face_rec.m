@@ -1,13 +1,16 @@
 clear; clc; close all;
 %% read in dataset
 % Mac Path
-allSubFolders = genpath('images/CroppedYale_fixed');
+% allSubFolders = genpath('images/CroppedYale_fixed');
 % Windows Path
-% allSubFolders = genpath('images\CroppedYale_fixed');
+allSubFolders = genpath('images\CroppedYale_fixed');
 remain = allSubFolders;
 listOfFolderNames = {};
 while true
-    [singleSubFolder, remain] = strtok(remain, ':');
+    % Mac Path
+    % [singleSubFolder, remain] = strtok(remain, ':');
+    % Windows Path
+    [singleSubFolder, remain] = strtok(remain, ';');
     if isempty(singleSubFolder)
         break;
     end
