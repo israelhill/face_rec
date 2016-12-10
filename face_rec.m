@@ -31,8 +31,8 @@ for k = 1 : numberOfFolders
 end
 
 cropped = cropped(~cellfun(@isempty,cropped));
-for i = 1:length(cropped)
-    cropped_set(:,:,i) = cropped{i};
+for j = 1:length(cropped)
+    cropped_set(:,:,j) = cropped{j};
 end
 
 %% averaging
@@ -41,8 +41,8 @@ figure
 imagesc(avg_cropped); colormap gray;
 
 %% reshape
-for i = 1:length(cropped_set)
-    cropped_vector(:,i) = reshape(cropped_set(:,:,i),[1 192*168]);
+for j = 1:length(cropped_set)
+    cropped_vector(:,j) = reshape(cropped_set(:,:,j),[1 192*168]);
 end
 avg_cropped_vector = reshape(avg_cropped,[192*168 1]);
 avg_cropped_vector = repmat(avg_cropped_vector,1,2414);
@@ -72,8 +72,41 @@ A = single(A);
 %% SVD
 [U,S,V] = svd(A,'econ');
 
-%% showing eigenfaces?
-for i = 0:15
-    subplot(4,4,i+1)
-    imagesc(reshape(U(:,i+1),192,168)); colormap gray
+%% showing eigenfaces
+for j = 0:27
+    subplot(4,7,j+1)
+    %reshaped_eig_faces(:,:,i+1) = reshape(U(:,i+1),192,168);
+    imagesc(reshape(U(:,j+1),192,168)); colormap gray
 end
+
+%% Eigenspace
+%for i = 1:size(cropped_set,3)
+%    eig_space(:,:,i) = double(cropped_set(:,:,i))-avg_cropped;
+%end
+
+%% weights
+close all
+for j = 1:13
+    %j
+    %avg_cropped_vector(:,j)'*U(:,2)
+    w5(:,j) = U(:,j)'*avg_cropped_vector(:,50);
+    w50(:,j) = U(:,j)'*avg_cropped_vector(:,50);
+end
+figure
+hold on
+plot(w5)
+plot(w50)
+hold off
+
+figure
+imagesc(cropped_set(:,:,50)); colormap gray;
+recon5 = zeros(32256,1);
+recon50 = zeros(32256,1);
+for j = 1:13
+    recon5 = recon5+w5(j)*U(:,j);
+    recon50 = recon50+w50(j)*U(:,j);
+end
+recon5 = reshape(recon5,192,168);
+recon50 = reshape(recon50,192,168);
+figure
+imagesc(recon5-recon50); colormap gray;
