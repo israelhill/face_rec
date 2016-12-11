@@ -28,7 +28,8 @@ for i = 1: length (folder)
             continue;
         end
         % ... read the image
-        T = double(imread(filename));
+        T = single(imread(filename));
+        T = imresize(T, 0.1);
         % ... get the image information
         [height, width] = size(T);
         % ... reshape into a row vector and append to data matrix
@@ -45,12 +46,12 @@ end % ... for - each folder.
 classes = unique(y);
 num_classes = length(classes);
 
-% scatter_within = zeros(cols, cols);
-% scatter_between = zeros(cols, cols);
+scatter_within = single(zeros(cols, cols));
+scatter_between = single(zeros(cols, cols));
 data_mean = mean(X);
 
 for i = 1 : num_classes
-    current_class = X(find(y == labels(i)),:);
+    current_class = X(find(y == classes(i)),:);
     num_rows = size(current_class, 1);
     class_mean = mean(current_class);
     current_class = current_class - repmat(class_mean, num_rows, 1);
