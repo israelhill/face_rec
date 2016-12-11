@@ -2,11 +2,19 @@ clc; clear all; close all;
 
 %% file input
 % reading in image files
-folderpath = 'images\\CroppedYale_fixed\\yaleB%02d\\*.pgm';
+if ismac
+    folderpath = 'images/CroppedYale_fixed/yaleB%02d/*.pgm';
+else
+    folderpath = 'images\\CroppedYale_fixed\\yaleB%02d\\*.pgm';
+end
 for i = 1:39
    srcfiles = dir(sprintf(folderpath,i));
    for j = 1:length(srcfiles)
-       file = strcat(sprintf('images\\CroppedYale_fixed\\yaleB%02d\\',i),srcfiles(j).name);
+       if ismac
+           file = strcat(sprintf('images/CroppedYale_fixed/yaleB%02d/',i),srcfiles(j).name);
+       else
+           file = strcat(sprintf('images\\CroppedYale_fixed\\yaleB%02d\\',i),srcfiles(j).name);
+       end
        cropped_set{i,j} = imread(file);
    end
    face_divides(i) = length(srcfiles);
