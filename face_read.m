@@ -25,17 +25,15 @@ end
 
 % putting faces into buckets
 face_divides(face_divides == 0) = [];
-temp_divides = cumsum(face_divides);
-% face_divides = [0 temp_divides];
-% 
-% for i = 1:39
-%     if i ~= 14
-%         face_names{i} = strcat('Face',num2str(i));
-%     end
-% end
-% face_names = face_names(~cellfun(@isempty,face_names));
-% %face_buckets = discretize(cropped_set_fixed,face_divides,'IncludedEdge','right','categorical',face_names);
-% face_buckets = discretize(cropped_set_fixed,face_divides,'categorical',face_names);
+face_divides = cumsum(face_divides);
+face_divides = [0 face_divides];
+for i = 1:39
+    if i ~= 14
+        face_names{i} = strcat('Face',num2str(i));
+    end
+end
+face_names = face_names(~cellfun(@isempty,face_names));
+face_buckets = discretize([1:2414],face_divides,'categorical',face_names,'IncludedEdge','right');
 
 %% split into testing and training sets
 [training_set,training_idx] = datasample(cropped_set_fixed,size(cropped_set_fixed,3)/2,3,'Replace',false);
@@ -103,28 +101,22 @@ end
 hold off
 
 %% compute Euclidian difference, make prediction
-for j = 1:length(omega_testing)
-    euclidian_arr(j) = norm(omega_testing(:,150)-omega_training(:,j));
-end
-[prediction, p_index] = min(euclidian_arr)
-
 figure
-imagesc(testing_set(:,:,150)); colormap gray; title('Input face');
-figure
-imagesc(training_set(:,:,p_index)); colormap gray; title('Prediction');
-% this returns the cropped_set_fixed index
-csf_idx = training_idx(p_index)
-face_num = 1;
-for i = 1:38
-    if csf_idx > face_divides(i)
-        face_num = face_num+1
-        break
-    else
-        face_num
+count = 1;
+for k = 1:5
+    k = k + 5;
+    for j = 1:length(omega_training)
+        euclidian_arr(j) = norm(omega_testing(:,k)-omega_training(:,j));
     end
+    [prediction, p_index] = min(euclidian_arr);
+    csf_idx = training_idx(p_index);
+    face_num = char(face_buckets(csf_idx));
+    subplot(5,2,count);
+    imshow(testing_set(:,:,k)); title('Input Face');
+    subplot(5,2,count + 1);
+    imshow(cropped_set_fixed(:,:,csf_idx)); title(strcat('Predicted: ',face_num));
+    count = count + 2;
 end
-    
-
 
 % randomly split into half for training and testing
 % get index of training set
