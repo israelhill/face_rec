@@ -25,17 +25,15 @@ end
 
 % putting faces into buckets
 face_divides(face_divides == 0) = [];
-temp_divides = cumsum(face_divides);
-% face_divides = [0 temp_divides];
-% 
-% for i = 1:39
-%     if i ~= 14
-%         face_names{i} = strcat('Face',num2str(i));
-%     end
-% end
-% face_names = face_names(~cellfun(@isempty,face_names));
-% %face_buckets = discretize(cropped_set_fixed,face_divides,'IncludedEdge','right','categorical',face_names);
-% face_buckets = discretize(cropped_set_fixed,face_divides,'categorical',face_names);
+face_divides = cumsum(face_divides);
+face_divides = [0 face_divides];
+for i = 1:39
+    if i ~= 14
+        face_names{i} = strcat('Face',num2str(i));
+    end
+end
+face_names = face_names(~cellfun(@isempty,face_names));
+face_buckets = discretize([1:2414],face_divides,'categorical',face_names,'IncludedEdge','right');
 
 %% split into testing and training sets
 [training_set,training_idx] = datasample(cropped_set_fixed,size(cropped_set_fixed,3)/2,3,'Replace',false);
@@ -103,28 +101,35 @@ end
 hold off
 
 %% compute Euclidian difference, make prediction
+close all
+test_img = randi(length(testing_set));
 for j = 1:length(omega_testing)
-    euclidian_arr(j) = norm(omega_testing(:,150)-omega_training(:,j));
+    euclidian_arr(j) = norm(omega_testing(:,test_img)-omega_training(:,j));
 end
-[prediction, p_index] = min(euclidian_arr)
+[prediction, p_index] = min(euclidian_arr);
 
-figure
-imagesc(testing_set(:,:,150)); colormap gray; title('Input face');
-figure
-imagesc(training_set(:,:,p_index)); colormap gray; title('Prediction');
 % this returns the cropped_set_fixed index
-csf_idx = training_idx(p_index)
-face_num = 1;
-for i = 1:38
-    if csf_idx > face_divides(i)
-        face_num = face_num+1
-        break
-    else
-        face_num
-    end
-end
-    
+csf_idx = training_idx(p_index);
+face_num = char(face_buckets(csf_idx));
+figure
+subplot(1,2,1)
+imshow(testing_set(:,:,test_img)); title('Input face');
+subplot(1,2,2)
+imshow(cropped_set_fixed(:,:,csf_idx)); title(strcat('Predicted: ',face_num));
 
+% finds possible matches from training set
+possible_matches = find(face_buckets == face_buckets(csf_idx));
+for i = 1:length(possible_matches)
+    possible_idx = possible_matches(i);
+    face_diff(:,:,i) = cropped_set_fixed(:,:,possible_idx)-testing_set(:,:,test_img);
+    matched_face(i) = sum(sum(face_diff(:,:,i)));
+end
+matched_face = matched_face == 0;
+if sum(matched_face) == 0
+    disp('No matching image found in predicted face')
+else
+    matched_face_idx = find(matched_face == 1)
+end
 
 % randomly split into half for training and testing
 % get index of training set
