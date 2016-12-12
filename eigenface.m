@@ -2,11 +2,19 @@ clc; clear all; close all;
 
 %% file input
 % reading in image files
-folderpath = 'images\\CroppedYale_fixed\\yaleB%02d\\*.pgm';
+if ismac
+    folderpath = 'images/CroppedYale_fixed/yaleB%02d/*.pgm';
+else
+    folderpath = 'images\\CroppedYale_fixed\\yaleB%02d\\*.pgm';
+end
 for i = 1:39
    srcfiles = dir(sprintf(folderpath,i));
    for j = 1:length(srcfiles)
-       file = strcat(sprintf('images\\CroppedYale_fixed\\yaleB%02d\\',i),srcfiles(j).name);
+       if ismac
+           file = strcat(sprintf('images/CroppedYale_fixed/yaleB%02d/',i),srcfiles(j).name);
+       else
+           file = strcat(sprintf('images\\CroppedYale_fixed\\yaleB%02d\\',i),srcfiles(j).name);
+       end
        cropped_set{i,j} = imread(file);
    end
    face_divides(i) = length(srcfiles);
@@ -101,36 +109,37 @@ end
 hold off
 
 %% compute Euclidian difference, make prediction
-close all
-test_img = randi(length(testing_set));
-for j = 1:length(omega_testing)
-    euclidian_arr(j) = norm(omega_testing(:,test_img)-omega_training(:,j));
+%test_img_set = randi(length(testing_set),5);
+num_correct = 0;
+percent_correct = 0.0;
+for img = 1:length(testing_set)
+    test_img = testing_set(:,:,img);
+    for j = 1:length(omega_testing)
+        euclidian_arr(j) = norm(omega_testing(:,img)-omega_training(:,j));
+    end
+    [prediction, p_index] = min(euclidian_arr);
+    
+    % this returns the cropped_set_fixed index
+    csf_idx = training_idx(p_index);
+    face_num = char(face_buckets(csf_idx));
+    
+    possible_matches = find(face_buckets == face_buckets(csf_idx));
+    found_match = false;
+    for i = 1:length(possible_matches)
+        possible_idx = possible_matches(i);
+        if (testing_set(:,:,img) == cropped_set_fixed(:,:,possible_idx))
+            disp(['Matching face found! Image ' num2str(img) ' ' num2str(possible_idx)])
+            found_match = true;
+            num_correct = num_correct + 1;
+        end
+    end
+    if ~found_match
+        disp('No matching image found in predicted face')
+    end
 end
-[prediction, p_index] = min(euclidian_arr);
 
-% this returns the cropped_set_fixed index
-csf_idx = training_idx(p_index);
-face_num = char(face_buckets(csf_idx));
-figure
-subplot(1,2,1)
-imshow(testing_set(:,:,test_img)); title('Input face');
-subplot(1,2,2)
-imshow(cropped_set_fixed(:,:,csf_idx)); title(strcat('Predicted: ',face_num));
-
-% finds possible matches from training set
-possible_matches = find(face_buckets == face_buckets(csf_idx));
-for i = 1:length(possible_matches)
-    possible_idx = possible_matches(i);
-    face_diff(:,:,i) = cropped_set_fixed(:,:,possible_idx)-testing_set(:,:,test_img);
-    matched_face(i) = sum(sum(face_diff(:,:,i)));
-end
-matched_face = matched_face == 0;
-if sum(matched_face) == 0
-    disp('No matching image found in predicted face')
-else
-    matched_face_idx = find(matched_face == 1)
-end
-
+percent_correct = num_correct / length(testing_set);
+disp(['Percent Correct ' num2str(percent_correct)])
 % randomly split into half for training and testing
 % get index of training set
 % divide index into faces
