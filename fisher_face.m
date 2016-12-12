@@ -115,6 +115,7 @@ for i=1:min(16, num_classes-1)
     x = x - minX;
     x = x ./ (maxX - minX);
     x = x .* (255);
+    x = uint8(x);
     
     fisherface = reshape(x, height, width);
     imagesc(fisherface);
@@ -122,18 +123,28 @@ for i=1:min(16, num_classes-1)
     title(sprintf('Fisherface #%i', i));
 end
 
-% steps = 1:min(16,length(c)-1);
-% Q = X(1,:); % first image to reconstruct
-% figure; hold on;
-% title(sprintf('Fisherfaces Reconstruction'));
-% for i=1:min(16, length(steps))
-%     subplot(4,4,i);
-%     numEv = steps(i);
-%     P = project(W(:,numEv), X(1,:), data_mean);
-%     R = reconstruct(W(:,numEv),P, data_mean);
-%     comp = toGrayscale(R, w, h); imshow(comp);
-%     title(sprintf('Fisherface #%i', numEv));
-% end
+steps = 1:min(16,length(c)-1);
+Q = X(1,:); % first image to reconstruct
+figure; hold on;
+title(sprintf('Fisherfaces Reconstruction'));
+for i=1:min(16, length(steps))
+    subplot(4,4,i);
+    numEv = steps(i);
+    projection = (X-repmat(data_mean, size(X(1,:)-1), 1))*W(:,numEv);    
+    reconstructed_img = projection * W(:,numEv)' + repmat(data_mean, size(P, 1), 1);
+    
+    x = reconstructed_img;
+    minX = min(x(:));
+    maxX = max(x(:));
+    x = x - minX;
+    x = x ./ (maxX - minX);
+    x = x .* (255);
+    x = uint8(x);
+    
+    reconstructed_final = reshape(x, height, width);
+    imagesc(reconstructed_final);
+    title(sprintf('Fisherface #%i', numEv));
+end
 
 
 
