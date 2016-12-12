@@ -127,20 +127,33 @@ for i = 1:5
     subplot(1,2,2)
     imshow(cropped_set_fixed(:,:,csf_idx)); title(strcat('Predicted: ',face_num));
     
-    % finds possible matches from training set
     possible_matches = find(face_buckets == face_buckets(csf_idx));
-    for i = 1:length(possible_matches)
+    for i=1:length(possible_matches)
         possible_idx = possible_matches(i);
-        face_diff(:,:,i) = cropped_set_fixed(:,:,possible_idx)-testing_set(:,:,test_img);
-        matched_face(i) = sum(sum(face_diff(:,:,i)));
+        if (testing_set(:,:,test_img) == cropped_set_fixed(:,:,possible_idx))
+            disp(['Matching face found! Image ' num2str(possible_idx)])
+            figure
+            imshow(cropped_set_fixed(:,:,possible_idx))
+        end
     end
-    matched_face = matched_face == 0;
-    if sum(matched_face) == 0
-        disp('No matching image found in predicted face')
-    else
-        matched_face_idx = find(matched_face == 1);
-        disp(['Matching face found! Image ' num2str(matched_face_idx)])
-    end
+        
+    
+%     % finds possible matches from training set
+%     possible_matches = find(face_buckets == face_buckets(csf_idx));
+%     for i = 1:length(possible_matches)
+%         possible_idx = possible_matches(i);
+%         face_diff(:,:,i) = testing_set(:,:,test_img) - cropped_set_fixed(:,:,possible_idx);
+%         %dif = face_diff(:,:,i)
+%         matched_face(i) = sum(sum(face_diff(:,:,i)));
+%     end
+%     matched_face = matched_face == 0;
+%     if sum(matched_face) == 0
+%         disp('No matching image found in predicted face')
+%     else
+%         matched_face_idx = find(matched_face == 1);
+%         disp(['Matching face found! Image ' num2str(matched_face_idx)])
+%     end
+
 end
 % randomly split into half for training and testing
 % get index of training set
