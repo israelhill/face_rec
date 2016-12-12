@@ -42,17 +42,14 @@ for i = 1: length (folder)
     classIdx = classIdx + 1;
 end % ... for - each folder.
 
-% number of samples
-n = size(X,2);
-% get a random index
-randomIdx = uint32(rand()*n);
-% split data
-% into training set
-Xtrain = X(:, [1:(randomIdx-1), (randomIdx+1):n]); 
-ytrain = y([1:(randomIdx-1), (randomIdx+1):n]);
-% into test set
-Xtest = X(:,randomIdx);
-ytest = y(randomIdx);
+%% splits into raining and testing sets
+[Xtrain,training_idx] = datasample(X,size(X,1)/2,1,'Replace',false);
+Xtest = X;
+Xtest(training_idx,:) = [];
+
+ytrain = y(training_idx);
+ytest = y;
+ytest(:,training_idx) = [];
 
 %%
 [rows, cols] = size(Xtrain);
