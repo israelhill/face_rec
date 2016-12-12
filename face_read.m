@@ -109,14 +109,13 @@ end
 hold off
 
 %% compute Euclidian difference, make prediction
-close all; clc;
 %test_img_set = randi(length(testing_set),5);
 num_correct = 0;
 percent_correct = 0.0;
-for i = 1:length(testing_set)
-    test_img = testing_set(i);
+for img = 1:length(testing_set)
+    test_img = testing_set(:,:,img);
     for j = 1:length(omega_testing)
-        euclidian_arr(j) = norm(omega_testing(:,test_img)-omega_training(:,j));
+        euclidian_arr(j) = norm(omega_testing(:,img)-omega_training(:,j));
     end
     [prediction, p_index] = min(euclidian_arr);
     
@@ -126,10 +125,10 @@ for i = 1:length(testing_set)
     
     possible_matches = find(face_buckets == face_buckets(csf_idx));
     found_match = false;
-    for i=1:length(possible_matches)
+    for i = 1:length(possible_matches)
         possible_idx = possible_matches(i);
-        if (testing_set(:,:,test_img) == cropped_set_fixed(:,:,possible_idx))
-            disp(['Matching face found! Image ' num2str(possible_idx)])
+        if (testing_set(:,:,img) == cropped_set_fixed(:,:,possible_idx))
+            disp(['Matching face found! Image ' num2str(img) ' ' num2str(possible_idx)])
             found_match = true;
             num_correct = num_correct + 1;
         end
