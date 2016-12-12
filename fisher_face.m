@@ -191,6 +191,6 @@ for person=1:1207
     h = histc(y,(1:max(y)));
     [v,predicted] = max(h);
     fprintf(1,'predicted=%d,actual=%d\n', predicted, ytest(person))
-    figure;
-    imagesc(reshape(Xtest(person,:),96,84)); title('Test Image')
+    %figure;
+    %imagesc(reshape(Xtest(person,:),96,84)); title('Test Image')
 end
