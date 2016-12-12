@@ -29,7 +29,7 @@ for i = 1: length (folder)
         end
         % ... read the image
         T = single(imread(filename));
-        T = imresize(T, 0.1);
+        T = imresize(T, 0.5);
         % ... get the image information
         [height, width] = size(T);
         % ... reshape into a row vector and append to data matrix
@@ -40,38 +40,77 @@ for i = 1: length (folder)
     % ... increase the class index
     classIdx = classIdx + 1;
 end % ... for - each folder.
+
 %%
-% LDA
 [rows, cols] = size(X);
 classes = unique(y);
 num_classes = length(classes);
 
+% PCA
+c = rows - num_classes; 
+data_mean = mean(X);
+Xm = X - repmat(data_mean, rows, 1); 
+if(rows > cols)
+    k = Xm'*Xm;
+    [W_pca, s1, v1] = svd(k, 'econ');
+    W_pca = W_pca(:,1:c);
+else
+    k = Xm*Xm';
+    [W_pca, s1, v1] = svd(k, 'econ');
+    W_pca = Xm'*W_pca;
+    for i = 1 : rows
+        W_pca(:,i) = W_pca(:,i)/norm(W_pca(:,i));
+    end
+    W_pca = W_pca(:, 1:c);
+end
+fld_projection = (X - repmat(data_mean, size(X, 1), 1))*W_pca;
+
+
+%%
+% LDA
+[rows, cols] = size(fld_projection);
 scatter_within = single(zeros(cols, cols));
 scatter_between = single(zeros(cols, cols));
-data_mean = mean(X);
+fld_mean = mean(fld_projection);
 
 for i = 1 : num_classes
-    current_class = X(find(y == classes(i)),:);
+    current_class = fld_projection(find(y == classes(i)),:);
     num_rows = size(current_class, 1);
     class_mean = mean(current_class);
     current_class = current_class - repmat(class_mean, num_rows, 1);
     if i == 1
         scatter_within = current_class' * current_class;
-        scatter_between = num_rows*(class_mean - data_mean)'...
-            *(class_mean - data_mean);
+        scatter_between = num_rows*(class_mean - fld_mean)'...
+            *(class_mean - fld_mean);
     else
         scatter_within = scatter_within + current_class' * current_class;
         scatter_between = scatter_between + num_rows ...
-            * (class_mean - data_mean)'*(class_mean - data_mean);
+            * (class_mean - fld_mean)'*(class_mean - fld_mean);
     end
 end
 % solve for the eigenvectors
-[U,S,V] = svd(inv(scatter_within)*scatter_between);
-U = U(:,1:num_classes-1);
+[W_fld,S,V] = svd(inv(scatter_within)*scatter_between);
+W_fld = W_fld(:,1:num_classes-1);
 
+W = W_pca*W_fld;
+%%
 
-
-
+figure; hold on; 
+title(sprintf('Fisherfaces')); 
+for i=1:min(16, num_classes-1)
+    subplot(4,4,i);
+   
+    x = W(:,i);
+    minX = min(x(:));
+    maxX = max(x(:));
+    x = x - minX;
+    x = x ./ (maxX - minX);
+    x = x .* (255);
+    
+    fisherface = reshape(x, height, width);
+    imshow(fisherface);
+    title(sprintf('Fisherface #%i', i));
+end
 
 
 
