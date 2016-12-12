@@ -123,15 +123,16 @@ for i=1:min(16, num_classes-1)
     title(sprintf('Fisherface #%i', i));
 end
 
-steps = 1:min(16,length(num_classes)-1);
+steps = 1:min(16,num_classes-1);
 Q = X(1,:); % first image to reconstruct
 figure; hold on;
 title(sprintf('Fisherfaces Reconstruction'));
 for i=1:min(16, length(steps))
     subplot(4,4,i);
     numEv = steps(i);
-    projection = (X-repmat(data_mean, size(X(1,:)-1), 1))*W(:,numEv);    
-    reconstructed_img = projection * W(:,numEv)' + repmat(data_mean, size(P, 1), 1);
+    replication = repmat(data_mean, size(Q, 1), 1);
+    projection = (X(1,:) - replication)*W(:,numEv);    
+    reconstructed_img = projection * W(:,numEv)' + repmat(data_mean, size(projection, 1), 1);
     
     x = reconstructed_img;
     minX = min(x(:));
