@@ -10,6 +10,7 @@ height = 0;
 classIdx = 1;
 % for each file ...
 for i = 1: length (folder)
+    i
     subject = folder{i};
     % get files in this subdir
     images = list_files([path, filesep, subject]) ;
@@ -41,15 +42,27 @@ for i = 1: length (folder)
     classIdx = classIdx + 1;
 end % ... for - each folder.
 
+% number of samples
+n = size(X,2);
+% get a random index
+randomIdx = uint32(rand()*n);
+% split data
+% into training set
+Xtrain = X(:, [1:(randomIdx-1), (randomIdx+1):n]); 
+ytrain = y([1:(randomIdx-1), (randomIdx+1):n]);
+% into test set
+Xtest = X(:,randomIdx);
+ytest = y(randomIdx);
+
 %%
-[rows, cols] = size(X);
+[rows, cols] = size(Xtrain);
 classes = unique(y);
 num_classes = length(classes);
 
 % PCA
 c = rows - num_classes; 
-data_mean = mean(X);
-Xm = X - repmat(data_mean, rows, 1); 
+data_mean = mean(Xtrain);
+Xm = Xtrain - repmat(data_mean, rows, 1); 
 if(rows > cols)
     k = Xm'*Xm;
 %     [W_pca, s1, v1] = svd(k, 'econ');
@@ -69,7 +82,7 @@ else
     W_pca = W_pca(:, index);
     W_pca = W_pca(:,1:c);
 end
-fld_projection = (X - repmat(data_mean, size(X, 1), 1))*W_pca;
+fld_projection = (Xtrain - repmat(data_mean, size(Xtrain, 1), 1))*W_pca;
 
 
 %%
@@ -124,14 +137,14 @@ for i=1:min(16, num_classes-1)
 end
 
 steps = 1:min(16,num_classes-1);
-Q = X(1,:); % first image to reconstruct
+Q = Xtrain(1,:); % first image to reconstruct
 figure; hold on;
 title(sprintf('Fisherfaces Reconstruction'));
 for i=1:min(16, length(steps))
     subplot(4,4,i);
     numEv = steps(i);
     replication = repmat(data_mean, size(Q, 1), 1);
-    projection = (X(1,:) - replication)*W(:,numEv);    
+    projection = (Xtrain(1,:) - replication)*W(:,numEv);    
     reconstructed_img = projection * W(:,numEv)' + repmat(data_mean, size(projection, 1), 1);
     
     x = reconstructed_img;
@@ -146,7 +159,6 @@ for i=1:min(16, length(steps))
     imagesc(reconstructed_final);
     title(sprintf('Fisherface #%i', numEv));
 end
-
 
 
 
