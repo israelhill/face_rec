@@ -52,16 +52,22 @@ data_mean = mean(X);
 Xm = X - repmat(data_mean, rows, 1); 
 if(rows > cols)
     k = Xm'*Xm;
-    [W_pca, s1, v1] = svd(k, 'econ');
+%     [W_pca, s1, v1] = svd(k, 'econ');
+    [W_pca, d] = eig(k);
+    [d, index] = sort(diag(d), 'descend');
+    W_pca = W_pca(:, index);
     W_pca = W_pca(:,1:c);
 else
     k = Xm*Xm';
-    [W_pca, s1, v1] = svd(k, 'econ');
+%     [W_pca, s1, v1] = svd(k, 'econ');
+    [W_pca, d] = eig(k);
     W_pca = Xm'*W_pca;
     for i = 1 : rows
         W_pca(:,i) = W_pca(:,i)/norm(W_pca(:,i));
     end
-    W_pca = W_pca(:, 1:c);
+    [d, index] = sort(diag(d), 'descend');
+    W_pca = W_pca(:, index);
+    W_pca = W_pca(:,1:c);
 end
 fld_projection = (X - repmat(data_mean, size(X, 1), 1))*W_pca;
 
@@ -89,7 +95,10 @@ for i = 1 : num_classes
     end
 end
 % solve for the eigenvectors
-[W_fld,S,V] = svd(inv(scatter_within)*scatter_between);
+% [W_fld,S,V] = svd(inv(scatter_within)*scatter_between);
+[W_fld, d] = eig(scatter_between, scatter_within);
+[d, index] = sort(diag(d), 'descend');
+W_fld = W_fld(:, index);
 W_fld = W_fld(:,1:num_classes-1);
 
 W = W_pca*W_fld;
@@ -112,6 +121,19 @@ for i=1:min(16, num_classes-1)
     colormap(jet(256));
     title(sprintf('Fisherface #%i', i));
 end
+
+% steps = 1:min(16,length(c)-1);
+% Q = X(1,:); % first image to reconstruct
+% figure; hold on;
+% title(sprintf('Fisherfaces Reconstruction'));
+% for i=1:min(16, length(steps))
+%     subplot(4,4,i);
+%     numEv = steps(i);
+%     P = project(W(:,numEv), X(1,:), data_mean);
+%     R = reconstruct(W(:,numEv),P, data_mean);
+%     comp = toGrayscale(R, w, h); imshow(comp);
+%     title(sprintf('Fisherface #%i', numEv));
+% end
 
 
 
