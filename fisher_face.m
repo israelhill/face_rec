@@ -123,7 +123,7 @@ for i=1:min(16, num_classes-1)
     title(sprintf('Fisherface #%i', i));
 end
 
-steps = 1:min(16,length(c)-1);
+steps = 1:min(16,length(num_classes)-1);
 Q = X(1,:); % first image to reconstruct
 figure; hold on;
 title(sprintf('Fisherfaces Reconstruction'));
