@@ -108,7 +108,8 @@ for i=1:min(16, num_classes-1)
     x = x .* (255);
     
     fisherface = reshape(x, height, width);
-    imshow(fisherface);
+    imagesc(fisherface);
+    colormap(jet(256));
     title(sprintf('Fisherface #%i', i));
 end
 
