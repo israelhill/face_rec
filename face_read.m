@@ -128,14 +128,20 @@ for i = 1:5
     imshow(cropped_set_fixed(:,:,csf_idx)); title(strcat('Predicted: ',face_num));
     
     possible_matches = find(face_buckets == face_buckets(csf_idx));
+    found_match = logical(0);
     for i=1:length(possible_matches)
         possible_idx = possible_matches(i);
         if (testing_set(:,:,test_img) == cropped_set_fixed(:,:,possible_idx))
             disp(['Matching face found! Image ' num2str(possible_idx)])
             figure
             imshow(cropped_set_fixed(:,:,possible_idx))
+            found_match = logical(1);
         end
     end
+    if ~found_match
+        disp('No matching image found in predicted face')
+    end
+
         
     
 %     % finds possible matches from training set
