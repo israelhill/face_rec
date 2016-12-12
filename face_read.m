@@ -110,9 +110,11 @@ hold off
 
 %% compute Euclidian difference, make prediction
 close all; clc;
-test_img_set = randi(length(testing_set),5);
-for i = 1:5
-    test_img = test_img_set(i);
+%test_img_set = randi(length(testing_set),5);
+num_correct = 0;
+percent_correct = 0.0;
+for i = 1:length(testing_set)
+    test_img = testing_set(i);
     for j = 1:length(omega_testing)
         euclidian_arr(j) = norm(omega_testing(:,test_img)-omega_training(:,j));
     end
@@ -121,11 +123,6 @@ for i = 1:5
     % this returns the cropped_set_fixed index
     csf_idx = training_idx(p_index);
     face_num = char(face_buckets(csf_idx));
-    figure
-    subplot(1,2,1)
-    imshow(testing_set(:,:,test_img)); title('Input face');
-    subplot(1,2,2)
-    imshow(cropped_set_fixed(:,:,csf_idx)); title(strcat('Predicted: ',face_num));
     
     possible_matches = find(face_buckets == face_buckets(csf_idx));
     found_match = false;
@@ -133,15 +130,17 @@ for i = 1:5
         possible_idx = possible_matches(i);
         if (testing_set(:,:,test_img) == cropped_set_fixed(:,:,possible_idx))
             disp(['Matching face found! Image ' num2str(possible_idx)])
-            figure
-            imshow(cropped_set_fixed(:,:,possible_idx))
             found_match = true;
+            num_correct = num_correct + 1;
         end
     end
     if ~found_match
         disp('No matching image found in predicted face')
     end
 end
+
+percent_correct = num_correct / length(testing_set);
+disp(['Percent Correct ' num2str(percent_correct)])
 % randomly split into half for training and testing
 % get index of training set
 % divide index into faces
