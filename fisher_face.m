@@ -159,26 +159,26 @@ end
 
 %% matching
 X = X';
-Xtest = X(:, 1);
 Xtrain = Xtrain';
-ytest = y(1);
 
 model.name = 'lda';
 model.mu = repmat(0, size(Xtrain,1), 1);
 % model.D = Lda.D;
 
-model.W = W;
-model.P = model.W'*Xtrain;
+transposed = W';
+model.P = transposed*Xtrain;
 % model.P = Xtrain*model.W;
 model.num_components = num_classes;
 model.y = ytrain;
 
-for person=1:1
-    Q = model.W'*Xtest;
+for person=1:1207
+    Xtest = X(:, person);
+    ytest = model.y(person);
+    Q = W'*Xtest;
 
     % function passes
     P = model.P;
-    y = model.y;
+    y = ytrain;
     k = 5;
 
     n = size(P,2);
@@ -196,7 +196,7 @@ for person=1:1
     y = y(1:k);
     h = histc(y,(1:max(y)));
     [v,predicted] = max(h);
-    fprintf(1,'predicted=%d,actual=%d\n', predicted, ytest(person))
+    fprintf(1,'predicted=%d,actual=%d\n', predicted, ytest)
     %figure;
     %imagesc(reshape(Xtest(person,:),96,84)); title('Test Image')
 end
