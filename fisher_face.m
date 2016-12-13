@@ -170,16 +170,17 @@ model.P = transposed*Xtrain;
 % model.P = Xtrain*model.W;
 model.num_components = num_classes;
 model.y = ytrain;
-
+y_test = ytest;
 for person=1:1207
-    Xtest = X(:, person);
-    ytest = model.y(person);
-    Q = W'*Xtest;
+    z = Xtest';
+    current_person_x = z(:, person);
+    ytest = y_test(person);
+    Q = W'*current_person_x;
 
     % function passes
     P = model.P;
-    y = ytrain;
-    k = 5;
+    y2 = ytrain;
+    k = 3;
 
     n = size(P,2);
     % if (nargin == 3)
@@ -192,11 +193,12 @@ for person=1:1207
     Q = repmat(Q, 1, n);
     distances = sqrt(sum(power((P-Q),2),1));
     [distances, idx] = sort(distances);
-    y = y(idx);
-    y = y(1:k);
-    h = histc(y,(1:max(y)));
+    y2 = y2(idx);
+    y2 = y2(1:k);
+    h = histc(y2,(1:max(y2)));
     [v,predicted] = max(h);
     fprintf(1,'predicted=%d,actual=%d\n', predicted, ytest)
     %figure;
     %imagesc(reshape(Xtest(person,:),96,84)); title('Test Image')
+    clearvars predicted y_test v h y2 k idx distances P Q n
 end
