@@ -157,38 +157,24 @@ for i=1:min(16, length(steps))
     title(sprintf('Fisherface #%i', numEv));
 end
 
-%% matching
 X = X';
 Xtrain = Xtrain';
 
-model.name = 'lda';
-model.mu = repmat(0, size(Xtrain,1), 1);
-% model.D = Lda.D;
-
+%% matching
 transposed = W';
-model.P = transposed*Xtrain;
-% model.P = Xtrain*model.W;
-model.num_components = num_classes;
-model.y = ytrain;
+P = transposed*Xtrain;
 y_test = ytest;
+num_correct = 0;
 for person=1:1207
-    z = Xtest';
-    current_person_x = z(:, person);
-    ytest = y_test(person);
-    Q = W'*current_person_x;
+    data_transpose = Xtest';
+    current_person = data_transpose(:, person);
+    current_person_class = y_test(person);
+    Q = W'*current_person;
 
-    % function passes
-    P = model.P;
     y2 = ytrain;
-    k = 3;
+    k = 5;
 
     n = size(P,2);
-    % if (nargin == 3)
-    %     k = 1;
-    % elseif (k > n)
-    %     k = n;
-    % end
-    %k = n;
     
     Q = repmat(Q, 1, n);
     distances = sqrt(sum(power((P-Q),2),1));
@@ -197,8 +183,13 @@ for person=1:1207
     y2 = y2(1:k);
     h = histc(y2,(1:max(y2)));
     [v,predicted] = max(h);
-    fprintf(1,'predicted=%d,actual=%d\n', predicted, ytest)
+    %fprintf(1,'predicted=%d,actual=%d\n', predicted, current_person_class)
+    if (predicted == current_person_class)
+        num_correct = num_correct + 1;
+    end
     %figure;
     %imagesc(reshape(Xtest(person,:),96,84)); title('Test Image')
-    clearvars predicted y_test v h y2 k idx distances P Q n
 end
+
+percent_correct = uint8((num_correct / 1207) * 100);
+fprintf(1,'Percent Correct=%i\n', percent_correct);
